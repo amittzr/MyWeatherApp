@@ -5,6 +5,7 @@
 
 using json = nlohmann::json;
 
+//class for the api requests
 class WeatherFetcher {
 public:
     WeatherFetcher(const std::string& apiKey) : apiKey_(apiKey) {}

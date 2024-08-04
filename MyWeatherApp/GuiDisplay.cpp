@@ -12,7 +12,7 @@ void GuiDisplay::displayAllWeatherData(std::vector<CityWeather>& cities, Weather
     ImGui::Columns(3, "WeatherColumns");
 
     static char cityBuffer[3][128] = { "", "", "" };
-
+    // run on the 3 columns city structs
     for (size_t i = 0; i < cities.size(); ++i) {
         ImGui::PushID(i);  // Push a unique identifier for each city block
 
@@ -41,8 +41,9 @@ void GuiDisplay::displayAllWeatherData(std::vector<CityWeather>& cities, Weather
 
             std::thread fetchThread([&fetcher, &cityWeather = cities[i], &cityHistory]() {
                 try {
+                    //lambda : try to get json data for the city
                     fetcher.fetchWeatherData(cityWeather.city);
-                    std::lock_guard<std::mutex> lock(cityWeather.fetchMutex);
+                    std::lock_guard<std::mutex> lock(cityWeather.fetchMutex);   //lock mutex for critic zone
                     cityWeather.weatherData = fetcher.getWeatherData();
 
                     // Check HTTP response status and update refreshSuccessful
@@ -65,6 +66,7 @@ void GuiDisplay::displayAllWeatherData(std::vector<CityWeather>& cities, Weather
         }
 
         if (cities[i].fetchingData) {
+            // display massege while fetching data in the thread
             ImGui::Text("Fetching weather data for %s...", cities[i].city.c_str());
         }
         else {
@@ -99,7 +101,10 @@ void GuiDisplay::displayAllWeatherData(std::vector<CityWeather>& cities, Weather
     ImGui::End();
 }
 
+// function to add history - save last 5
+// save as a qoueue format
 void GuiDisplay::addToHistory(std::vector<std::pair<std::string, float>>& cityHistory, const std::string& city, float tempCelsius) {
+    // add only if  did not exist
     auto it = std::find_if(cityHistory.begin(), cityHistory.end(),
         [&city](const std::pair<std::string, float>& entry) {
             return entry.first == city;

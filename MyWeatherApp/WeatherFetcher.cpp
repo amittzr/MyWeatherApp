@@ -1,5 +1,6 @@
 #include "WeatherFetcher.h"
 
+// get api data
 void WeatherFetcher::fetchWeatherData(const std::string& city) {
     httplib::Client cli("api.openweathermap.org");
     std::string path = "/data/2.5/weather?q=" + city + "&appid=" + apiKey_;
@@ -9,6 +10,7 @@ void WeatherFetcher::fetchWeatherData(const std::string& city) {
         weatherData_ = json::parse(res->body);
     }
     else {
+        //std::cerr << "Error : " << res->status << std::endl;
         throw std::runtime_error("Failed to fetch weather data");
     }
 }
